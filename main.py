@@ -39,7 +39,8 @@ empty_list = {'section' : '',
              'teacher' : '',
              'daytimes' : []}
 
-def make_course_list(lines):
+def make_course_list(filename):
+    lines = readFile(filename)
     course_list = []
     temp = empty_list
     temp_day = []
