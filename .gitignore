@@ -1,4 +1,6 @@
 models/__pycache__/
 __pycache__/
+.vscode/
 courses.csv
 app.ui
+icon.png
