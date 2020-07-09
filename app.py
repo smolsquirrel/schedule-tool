@@ -5,7 +5,6 @@ import sys
 sys.path.append('./models')
 from course import Course
 from daytime import Daytime
-from time import time
 
 class Ui_MainWindow(object):
     #MainWindow
@@ -68,7 +67,7 @@ class Ui_MainWindow(object):
 
         self.submit = QtWidgets.QPushButton(self.overview)
         self.submit.setGeometry(QtCore.QRect(300, 410, 81, 31))
-        self.submit.clicked.connect(self.generate_button)
+        #self.submit.clicked.connect(self.generate_button)
         self.submit.setObjectName("submit")
 
         self.overview_tab_widget = QtWidgets.QTabWidget(self.overview)
@@ -157,7 +156,6 @@ class Ui_MainWindow(object):
 
         self.overview_tab_widget.currentChanged.connect(self.change_current_list)
 
-        
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -185,10 +183,7 @@ class Ui_MainWindow(object):
         self.submit.setText("Generate")
 
     def unique(self,course_list):
-        unique_course_num = []
-        for course in course_list:
-            if course.number not in unique_course_num:
-                unique_course_num.append(course.number)
+        unique_course_num = sorted(set([course.number for course in course_list]))
         self.unique_course_num = unique_course_num
         return(unique_course_num)
 
@@ -218,9 +213,7 @@ class Ui_MainWindow(object):
         if keyword == '':
             self.reset_list()
         else:
-            for course in unique_all:
-                if keyword.upper() in course:
-                    search_list.append(course)
+            search_list = [course for course in unique_all if keyword.upper() in course]
             self.course_num_list_widget.clear()
             self.course_num_list_setup(search_list)
             self.course_num_list_translated(search_list)
@@ -267,7 +260,7 @@ class Ui_MainWindow(object):
             5 : self.overview_list5,
             6 : self.overview_list6,
             7 : self.overview_list7
-        }
+            }
         self.current_list = list_case[current_tab+1]
 
     def add_course(self):
@@ -311,13 +304,12 @@ class Ui_MainWindow(object):
     def generate_button(self):
         x = [self.overview_list1,self.overview_list2,self.overview_list3,self.overview_list4,self.overview_list5,self.overview_list6,self.overview_list7]
         self.submitted_list = list(map(self.get_course,x))
-        print(generate_schedule(self.submitted_list,self.course_dict))
+        #print(self.submitted_list)
+        #print(generate_schedule(self.submitted_list,self.course_dict))
         
-
-
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon('bernie.png'))
+    app.setWindowIcon(QtGui.QIcon('icon.png'))
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
