@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
-from main import make_course_list, generate_schedule
+from main import make_course_list, convList
 import sys
 sys.path.append('./models')
 from course import Course
@@ -67,7 +67,7 @@ class Ui_MainWindow(object):
 
         self.submit = QtWidgets.QPushButton(self.overview)
         self.submit.setGeometry(QtCore.QRect(300, 410, 81, 31))
-        #self.submit.clicked.connect(self.generate_button)
+        self.submit.clicked.connect(self.generate_button)
         self.submit.setObjectName("submit")
 
         self.overview_tab_widget = QtWidgets.QTabWidget(self.overview)
@@ -150,7 +150,6 @@ class Ui_MainWindow(object):
         self.course_list = temp[0]
         self.course_dict = temp[1]
         self.course_num_list_setup(ui.unique(self.course_list))
-        self.course_num_list_translated(ui.unique(self.course_list))
 
         self.current_item = "" #sets default current item to nothing
 
@@ -191,14 +190,8 @@ class Ui_MainWindow(object):
         for x in course_list:
             item = QtWidgets.QListWidgetItem()
             self.course_num_list_widget.addItem(item)
+            item.setText(str(x))
 
-    def course_num_list_translated(self, course_list):
-        count = 0
-        _translate = QtCore.QCoreApplication.translate
-        for x in course_list:
-            item = self.course_num_list_widget.item(count)
-            item.setText(_translate("MainWindow", str(x)))
-            count += 1
 
     def reset_list(self):
         unique_all = self.unique_course_num
@@ -222,7 +215,6 @@ class Ui_MainWindow(object):
         self.current_selected_course = item.text()
         section = self.find_section(item.text())
         self.section_list_setup(section)
-        self.section_list_translated(section)
 
     def find_section(self,course):
         section_list = []
@@ -236,14 +228,8 @@ class Ui_MainWindow(object):
         for i in section:
             item = QtWidgets.QListWidgetItem()
             self.section_list_widget.addItem(item)
+            item.setText(str(i))
     
-    def section_list_translated(self,section):
-        count = 0
-        _translate = QtCore.QCoreApplication.translate
-        for i in section:
-            item = self.section_list_widget.item(count)
-            item.setText(_translate("MainWindow", str(i)))
-            count += 1
 
     def course_display_text(self,item):
         _translate = QtCore.QCoreApplication.translate
@@ -303,9 +289,7 @@ class Ui_MainWindow(object):
         
     def generate_button(self):
         x = [self.overview_list1,self.overview_list2,self.overview_list3,self.overview_list4,self.overview_list5,self.overview_list6,self.overview_list7]
-        self.submitted_list = list(map(self.get_course,x))
-        #print(self.submitted_list)
-        #print(generate_schedule(self.submitted_list,self.course_dict))
+        self.submitted_list = convList(list(map(self.get_course,x)))
         
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
