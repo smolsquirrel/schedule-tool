@@ -5,4 +5,3 @@ class Course:
         self.name = name
         self.teacher = teacher
         self.daytimes = daytimes
-
