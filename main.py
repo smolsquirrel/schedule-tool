@@ -1,6 +1,6 @@
 import sys
 sys.path.append("./models")
-from course import Course, Week
+from course import Course
 import re
 import pickle
 
@@ -92,8 +92,12 @@ test_list = [
     ["203-NYA-05 / 21"],
     ["345-102-MQ / 5"],
     ["603-101-MQ / 1"],
-    ["GER-LAL / 1", "ITA-LAA / 3"],
-]
+    ["GER-LAL / 1", "ITA-LAA / 3", "ITA-LAA / 3"]
+    ]
+    
+# lst,dic = make_course_list('courses.csv')
+# x = [[dic[elem] for elem in tab] for tab in test_list]
+# pickle.dump(x,open("save3.p", "wb"))
 
 
 def convList(submittedList):
