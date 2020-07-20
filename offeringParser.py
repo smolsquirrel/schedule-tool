@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append("./models")
 from course import Course
 import re
@@ -36,18 +37,9 @@ def make_course_list(filename):
     weekdays = {"M": 0, "T": 1, "W": 2, "H": 3, "F": 4, "S": 5}
     temp = {"section": "", "number": "", "name": "", "teacher": "", "daytimes": ""}
     for line in lines:
-        data = re.split(
-            r',(?!\s|")', line.rstrip()
-        )  # splits on comma, except for teacher name
-
+        data = re.split(r',(?!\s|")', line.rstrip())  # splits on comma, except for teacher name
         if data[0] != "":  # check if new course
-            x = Course(
-                temp["section"],
-                temp["number"],
-                temp["name"],
-                temp["teacher"],
-                temp["daytimes"],
-            )
+            x = Course(temp["section"], temp["number"], temp["name"], temp["teacher"], temp["daytimes"],)
             key = "%s / %s" % (temp["number"], temp["section"])
             course_dict[key] = x
             course_list.append(x)
@@ -58,9 +50,7 @@ def make_course_list(filename):
             days = data[3]
             start, end = data[4].split("-")
             for day in days:
-                temp["daytimes"][day] = list(
-                    range(time_conv(start), time_conv(end), 30)
-                )
+                temp["daytimes"][day] = list(range(time_conv(start), time_conv(end), 30))
         else:
             teacher = find_teacher(data)
             if teacher != None:
@@ -69,20 +59,16 @@ def make_course_list(filename):
                 days = data[3]
                 start, end = data[4].split("-")
                 for day in days:
-                    temp["daytimes"][day] = list(
-                        range(time_conv(start), time_conv(end), 30)
-                    )
+                    temp["daytimes"][day] = list(range(time_conv(start), time_conv(end), 30))
 
-    x = Course(
-        temp["section"], temp["number"], temp["name"], temp["teacher"], temp["daytimes"]
-    )
+    courseObj = Course(temp["section"], temp["number"], temp["name"], temp["teacher"], temp["daytimes"])
     key = "%s / %s" % (temp["number"], temp["section"])
-    course_dict[key] = x
-    course_list.append(x)
+    course_dict[key] = courseObj
+    course_list.append(courseObj)
     course_list.pop(0)  # removes blank first course
 
     return [course_list, course_dict]
 
 
-def convList(submittedList,dic):
+def convList(submittedList, dic):
     return [[dic[elem] for elem in tab] for tab in submittedList]
