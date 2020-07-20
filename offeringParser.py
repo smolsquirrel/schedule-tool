@@ -84,5 +84,5 @@ def make_course_list(filename):
     return [course_list, course_dict]
 
 
-def convList(submittedList):
+def convList(submittedList,dic):
     return [[dic[elem] for elem in tab] for tab in submittedList]
