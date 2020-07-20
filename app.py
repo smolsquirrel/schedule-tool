@@ -1,13 +1,15 @@
+import sys
+
+sys.path.append("./models")
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
-from main import make_course_list, convList
-import sys
-sys.path.append('./models')
+from offeringParser import make_course_list, convList
 from course import Course
-from daytime import Daytime
+from generateSchedule import checkValid
+
 
 class Ui_MainWindow(object):
-    #MainWindow
+    # MainWindow
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1111, 681)
@@ -22,7 +24,8 @@ class Ui_MainWindow(object):
         self.window_tabs.setObjectName("window_tabs")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
-        #COURSE OFFERING FRAME /*
+
+        # COURSE OFFERING FRAME /*
         self.course_offering = QtWidgets.QFrame(self.tab)
         self.course_offering.setGeometry(QtCore.QRect(140, 80, 371, 451))
         self.course_offering.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -47,7 +50,7 @@ class Ui_MainWindow(object):
         self.course_search = QtWidgets.QTextEdit(self.course_offering)
         self.course_search.setGeometry(QtCore.QRect(10, 10, 171, 31))
         self.course_search.setObjectName("course_search")
-        
+
         self.course_display = QtWidgets.QTextBrowser(self.course_offering)
         self.course_display.setGeometry(QtCore.QRect(70, 400, 191, 31))
         self.course_display.setObjectName("course_display")
@@ -56,9 +59,9 @@ class Ui_MainWindow(object):
         self.add.setGeometry(QtCore.QRect(280, 400, 81, 31))
         self.add.setObjectName("add")
         self.add.clicked.connect(self.add_course)
-        
-        #COURSE OFFERING FRAME */
-        #OVERVIEW FRAM /*
+        # COURSE OFFERING FRAME */
+
+        # OVERVIEW FRAME /*
         self.overview = QtWidgets.QFrame(self.tab)
         self.overview.setGeometry(QtCore.QRect(620, 70, 391, 451))
         self.overview.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -118,7 +121,7 @@ class Ui_MainWindow(object):
         self.overview_list7.setGeometry(QtCore.QRect(0, 0, 381, 371))
         self.overview_list7.setObjectName("overview_list7")
         self.overview_tab_widget.addTab(self.overview_tab7, "")
-        self.current_list = self.overview_list1 #set default list
+        self.current_list = self.overview_list1  # set default list
         self.overview_list1.itemActivated.connect(self.delete_course_popup)
         self.overview_list2.itemActivated.connect(self.delete_course_popup)
         self.overview_list3.itemActivated.connect(self.delete_course_popup)
@@ -126,6 +129,7 @@ class Ui_MainWindow(object):
         self.overview_list5.itemActivated.connect(self.delete_course_popup)
         self.overview_list6.itemActivated.connect(self.delete_course_popup)
         self.overview_list7.itemActivated.connect(self.delete_course_popup)
+        # */
 
         self.window_tabs.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
@@ -143,48 +147,44 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.window_tabs.setCurrentIndex(0)
-        self.window_tabs.setTabEnabled(1,False)
+        self.window_tabs.setTabEnabled(1, False)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        #------------
-        temp = make_course_list("courses.csv")
-        self.course_list = temp[0]
-        self.course_dict = temp[1]
-        self.course_num_list_setup(ui.unique(self.course_list))
+        # ------------
+        self.course_list, self.course_dict = make_course_list("courses.csv")
+        self.course_num_list_setup(self.unique(self.course_list))
 
-        self.current_item = "" #sets default current item to nothing
+        self.current_item = ""  # sets default current item to nothing
 
         self.overview_tab_widget.currentChanged.connect(self.change_current_list)
 
-
     def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("Schedule Maker", "Schedule Maker"))
+        MainWindow.setWindowTitle("Schedule Maker")
 
         __sortingEnabled = self.course_num_list_widget.isSortingEnabled()
         self.course_num_list_widget.setSortingEnabled(False)
         self.course_num_list_widget.setSortingEnabled(__sortingEnabled)
 
-        self.course_search_button.setText(_translate("MainWindow", "Search"))
+        self.course_search_button.setText("Search")
 
-        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab), _translate("MainWindow", "Course Selection"))
-        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab_2), _translate("MainWindow", "Generate"))
+        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab), "Course Selection")
+        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab_2), "Generate")
 
-        self.add.setText(_translate("MainWindow", "Add"))
+        self.add.setText("Add")
 
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab1), _translate("MainWindow", "1"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab2), _translate("MainWindow", "2"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab3), _translate("MainWindow", "3"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab4), _translate("MainWindow", "4"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab5), _translate("MainWindow", "5"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab6), _translate("MainWindow", "6"))
-        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab7), _translate("MainWindow", "7"))
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab1), "1")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab2), "2")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab3), "3")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab4), "4")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab5), "5")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab6), "6")
+        self.overview_tab_widget.setTabText(self.overview_tab_widget.indexOf(self.overview_tab7), "7")
 
         self.submit.setText("Generate")
 
-    def unique(self,course_list):
+    def unique(self, course_list):
         unique_course_num = sorted(set([course.number for course in course_list]))
         self.unique_course_num = unique_course_num
-        return(unique_course_num)
+        return unique_course_num
 
     def course_num_list_setup(self, course_list):
         for x in course_list:
@@ -192,62 +192,57 @@ class Ui_MainWindow(object):
             self.course_num_list_widget.addItem(item)
             item.setText(str(x))
 
-
     def reset_list(self):
         unique_all = self.unique_course_num
         self.course_num_list_widget.clear()
         self.course_num_list_setup(unique_all)
-        self.course_num_list_translated(unique_all)
 
     def search(self):
         keyword = self.course_search.toPlainText()
         unique_all = self.unique_course_num
         search_list = []
-        if keyword == '':
+        if keyword == "":
             self.reset_list()
         else:
             search_list = [course for course in unique_all if keyword.upper() in course]
             self.course_num_list_widget.clear()
             self.course_num_list_setup(search_list)
-            self.course_num_list_translated(search_list)
 
-    def course_selected(self,item):
+    def course_selected(self, item):
         self.current_selected_course = item.text()
         section = self.find_section(item.text())
         self.section_list_setup(section)
 
-    def find_section(self,course):
+    def find_section(self, course):
         section_list = []
         for i in self.course_list:
             if i.number == course and i.section not in section_list:
                 section_list.append(i.section)
         return section_list
 
-    def section_list_setup(self,section):
+    def section_list_setup(self, section):
         self.section_list_widget.clear()
         for i in section:
             item = QtWidgets.QListWidgetItem()
             self.section_list_widget.addItem(item)
             item.setText(str(i))
-    
 
-    def course_display_text(self,item):
-        _translate = QtCore.QCoreApplication.translate
-        self.current_item = (self.current_selected_course + " / " + item.text())
-        self.course_display.setText(_translate("MainWindow", self.current_item))
+    def course_display_text(self, item):
+        self.current_item = self.current_selected_course + " / " + item.text()
+        self.course_display.setText(self.current_item)
 
     def change_current_list(self):
         current_tab = self.overview_tab_widget.currentIndex()
         list_case = {
-            1 : self.overview_list1,
-            2 : self.overview_list2,
-            3 : self.overview_list3,
-            4 : self.overview_list4,
-            5 : self.overview_list5,
-            6 : self.overview_list6,
-            7 : self.overview_list7
-            }
-        self.current_list = list_case[current_tab+1]
+            1: self.overview_list1,
+            2: self.overview_list2,
+            3: self.overview_list3,
+            4: self.overview_list4,
+            5: self.overview_list5,
+            6: self.overview_list6,
+            7: self.overview_list7,
+        }
+        self.current_list = list_case[current_tab + 1]
 
     def add_course(self):
         if self.current_item == "":
@@ -256,16 +251,16 @@ class Ui_MainWindow(object):
             item = QtWidgets.QListWidgetItem()
             item.setText(self.current_item)
             self.current_list.addItem(item)
-            #clears after adding
+            # clears after adding
             self.course_display.setText("")
             self.current_item = ""
-    
-    def delete_course_popup(self,item):
+
+    def delete_course_popup(self, item):
         self.change_current_list()
         self.current_index = self.current_list.row(item)
         self.delete_window = QtWidgets.QMessageBox()
         self.delete_popup(self.delete_window)
-        
+
     def delete_course(self):
         self.current_list.takeItem(self.current_index)
         self.delete_window.close()
@@ -273,30 +268,39 @@ class Ui_MainWindow(object):
     def delete_popup(self, msgBox):
         msgBox.setWindowTitle("Delete Confirmation")
         msgBox.setText("Are you sure you want to delete this item?")
-        delete = msgBox.addButton('Delete', msgBox.ActionRole)
+        delete = msgBox.addButton("Delete", msgBox.ActionRole)
         delete.clicked.disconnect()
         delete.clicked.connect(self.delete_course)
-        cancel = msgBox.addButton('Cancel', QtWidgets.QMessageBox.RejectRole)
+        cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
         msgBox.show()
         msgBox.exec_()
-    
-    def get_course(self,lst):
+
+    def get_course(self, lst):
         count = lst.count()
         x = []
-        for i in range(0,count):
+        for i in range(0, count):
             x.append(lst.item(i).text())
         return x
-        
+
     def generate_button(self):
-        x = [self.overview_list1,self.overview_list2,self.overview_list3,self.overview_list4,self.overview_list5,self.overview_list6,self.overview_list7]
-        self.submitted_list = convList(list(map(self.get_course,x)))
-        
+        x = [
+            self.overview_list1,
+            self.overview_list2,
+            self.overview_list3,
+            self.overview_list4,
+            self.overview_list5,
+            self.overview_list6,
+            self.overview_list7,
+        ]
+        self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
+        output = checkValid(self.submitted_list)
+
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon('icon.png'))
+    app.setWindowIcon(QtGui.QIcon("icon.png"))
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
- 
