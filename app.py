@@ -1,10 +1,7 @@
-# Libraries
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory
-
-# Other
 import sys
 
 sys.path.append("./models")
@@ -12,6 +9,7 @@ from offeringParser import make_course_list, convList
 from course import Course
 from generateSchedule import checkValid
 from generateGraphic import objToArray, graphic, makeFolder
+from time import time
 
 
 class Ui_MainWindow(object):
@@ -139,19 +137,16 @@ class Ui_MainWindow(object):
         self.overview_list7.setObjectName("overview_list7")
         self.overview_tab_widget.addTab(self.overview_tab7, "")
         self.current_list = self.overview_list1  # set default list
-        self.overview_list1.itemActivated.connect(self.delete_course_popup)
-        self.overview_list2.itemActivated.connect(self.delete_course_popup)
-        self.overview_list3.itemActivated.connect(self.delete_course_popup)
-        self.overview_list4.itemActivated.connect(self.delete_course_popup)
-        self.overview_list5.itemActivated.connect(self.delete_course_popup)
-        self.overview_list6.itemActivated.connect(self.delete_course_popup)
-        self.overview_list7.itemActivated.connect(self.delete_course_popup)
+        self.overview_list1.itemActivated.connect(self.delete_popup)
+        self.overview_list2.itemActivated.connect(self.delete_popup)
+        self.overview_list3.itemActivated.connect(self.delete_popup)
+        self.overview_list4.itemActivated.connect(self.delete_popup)
+        self.overview_list5.itemActivated.connect(self.delete_popup)
+        self.overview_list6.itemActivated.connect(self.delete_popup)
+        self.overview_list7.itemActivated.connect(self.delete_popup)
         # */
 
         self.window_tabs.addTab(self.tab, "")
-        self.tab_2 = QtWidgets.QWidget()
-        self.tab_2.setObjectName("tab_2")
-        self.window_tabs.addTab(self.tab_2, "")
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
@@ -164,7 +159,6 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         self.window_tabs.setCurrentIndex(0)
-        self.window_tabs.setTabEnabled(1, False)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         # ------------
         self.course_list, self.course_dict = make_course_list("courses.csv")
@@ -184,7 +178,6 @@ class Ui_MainWindow(object):
         self.course_search_button.setText("Search")
 
         self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab), "Course Selection")
-        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab_2), "Generate")
 
         self.add.setText("Add")
 
@@ -274,25 +267,20 @@ class Ui_MainWindow(object):
             self.course_display.setText("")
             self.current_item = ""
 
-    def delete_course_popup(self, item):
+    def delete_popup(self, item):
         self.change_current_list()
         self.current_index = self.current_list.row(item)
-        self.delete_window = QtWidgets.QMessageBox()
-        self.delete_popup(self.delete_window)
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setWindowTitle("Delete Confirmation")
+        msgBox.setText("Are you sure you want to delete this item?")
+        msgBox.setIcon(QMessageBox.Warning)
+        delete = msgBox.addButton("Delete", msgBox.ActionRole)
+        delete.clicked.connect(self.delete_course)
+        cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
+        msgBox.exec_()
 
     def delete_course(self):
         self.current_list.takeItem(self.current_index)
-        self.delete_window.close()
-
-    def delete_popup(self, msgBox):
-        msgBox.setWindowTitle("Delete Confirmation")
-        msgBox.setText("Are you sure you want to delete this item?")
-        delete = msgBox.addButton("Delete", msgBox.ActionRole)
-        delete.clicked.disconnect()
-        delete.clicked.connect(self.delete_course)
-        cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
-        msgBox.show()
-        msgBox.exec_()
 
     def get_course(self, lst):
         count = lst.count()
@@ -303,6 +291,7 @@ class Ui_MainWindow(object):
 
     def generate_button(self):
         if not self.directory:
+            self.noDirectory()
             return
         x = [
             self.overview_list1,
@@ -313,13 +302,20 @@ class Ui_MainWindow(object):
             self.overview_list6,
             self.overview_list7,
         ]
+        for i in x:
+            if len(i) < 1:
+                self.noValidOutput()
+                end = time()
+                return
         self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
         output = checkValid(self.submitted_list)
-        print(output)
         if output:
             for permutation in output:
                 arr, courseOrder = objToArray(permutation)
                 graphic(arr, courseOrder, self.subDir)
+        else:
+            end = time()
+            self.noValidOutput()
 
     def directoryBox(self):
         self.directoryBtn.disconnect()  # prevents opening multiple dialogs
@@ -329,6 +325,20 @@ class Ui_MainWindow(object):
             self.path_display.setText(self.directory)
             self.subDir = makeFolder(self.directory)
         self.directoryBtn.clicked.connect(self.directoryBox)
+
+    def noDirectory(self):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setWindowTitle("Alert")
+        msgBox.setText("Please choose an output directory.")
+        msgBox.exec_()
+
+    def noValidOutput(self):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setWindowTitle("Alert")
+        msgBox.setText("No valid schedule combinations.")
+        msgBox.exec_()
 
 
 if __name__ == "__main__":
