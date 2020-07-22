@@ -2,7 +2,7 @@ from offeringParser import make_course_list
 
 
 def checkValid(lst: list) -> list:
-    checkCount = 0
+    count = 0
     validList = []
     t1, t2, t3, t4, t5, t6, t7 = lst
     for c1 in t1:
@@ -14,7 +14,7 @@ def checkValid(lst: list) -> list:
                             for c7 in t7:
                                 lst = [c1, c2, c3, c4, c5, c6, c7]
                                 checkResult = checkAvail(lst)
-                                checkCount += 1
+                                count += 1
                                 if checkResult:
                                     validList.append(checkResult)
                                 else:
