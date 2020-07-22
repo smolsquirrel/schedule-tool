@@ -1,16 +1,24 @@
+# Libraries
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+from PyQt5 import QtCore, QtGui, QtWidgets
+from tkinter import Tk
+from tkinter.filedialog import askdirectory
+
+# Other
 import sys
 
 sys.path.append("./models")
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
-from PyQt5 import QtCore, QtGui, QtWidgets
 from offeringParser import make_course_list, convList
 from course import Course
 from generateSchedule import checkValid
+from generateGraphic import objToArray, graphic, makeFolder
 
 
 class Ui_MainWindow(object):
     # MainWindow
     def setupUi(self, MainWindow):
+        self.directory = ""
+
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1111, 681)
 
@@ -63,7 +71,7 @@ class Ui_MainWindow(object):
 
         # OVERVIEW FRAME /*
         self.overview = QtWidgets.QFrame(self.tab)
-        self.overview.setGeometry(QtCore.QRect(620, 70, 391, 451))
+        self.overview.setGeometry(QtCore.QRect(620, 70, 391, 491))
         self.overview.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.overview.setFrameShadow(QtWidgets.QFrame.Raised)
         self.overview.setObjectName("overview")
@@ -72,6 +80,15 @@ class Ui_MainWindow(object):
         self.submit.setGeometry(QtCore.QRect(300, 410, 81, 31))
         self.submit.clicked.connect(self.generate_button)
         self.submit.setObjectName("submit")
+
+        self.directoryBtn = QtWidgets.QPushButton(self.overview)
+        self.directoryBtn.setGeometry(QtCore.QRect(0, 410, 150, 31))
+        self.directoryBtn.clicked.connect(self.directoryBox)
+        self.directoryBtn.setObjectName("directoryBtn")
+
+        self.path_display = QtWidgets.QTextBrowser(self.overview)
+        self.path_display.setGeometry(QtCore.QRect(0, 450, 381, 31))
+        self.path_display.setObjectName("path_display")
 
         self.overview_tab_widget = QtWidgets.QTabWidget(self.overview)
         self.overview_tab_widget.setGeometry(QtCore.QRect(0, 10, 381, 391))
@@ -181,6 +198,8 @@ class Ui_MainWindow(object):
 
         self.submit.setText("Generate")
 
+        self.directoryBtn.setText("Choose save directory")
+
     def unique(self, course_list):
         unique_course_num = sorted(set([course.number for course in course_list]))
         self.unique_course_num = unique_course_num
@@ -283,6 +302,8 @@ class Ui_MainWindow(object):
         return x
 
     def generate_button(self):
+        if not self.directory:
+            return
         x = [
             self.overview_list1,
             self.overview_list2,
@@ -294,6 +315,20 @@ class Ui_MainWindow(object):
         ]
         self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
         output = checkValid(self.submitted_list)
+        print(output)
+        if output:
+            for permutation in output:
+                arr, courseOrder = objToArray(permutation)
+                graphic(arr, courseOrder, self.subDir)
+
+    def directoryBox(self):
+        self.directoryBtn.disconnect()  # prevents opening multiple dialogs
+        Tk().withdraw()
+        self.directory = askdirectory()
+        if self.directory:  # if not empty
+            self.path_display.setText(self.directory)
+            self.subDir = makeFolder(self.directory)
+        self.directoryBtn.clicked.connect(self.directoryBox)
 
 
 if __name__ == "__main__":
