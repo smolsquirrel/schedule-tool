@@ -1,6 +1,3 @@
-from offeringParser import make_course_list
-
-
 def checkValid(lst: list) -> list:
     count = 0
     validList = []
