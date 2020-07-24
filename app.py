@@ -7,6 +7,7 @@ import sys
 sys.path.append("./models")
 from offeringParser import make_course_list, convList
 from generateSchedule import checkValid
+from generateGraphic import objToArray, graphic, makeFolder
 
 
 class Ui_MainWindow(object):
