@@ -6,8 +6,6 @@ from math import floor
 import sys
 
 sys.path.append("./models")
-from course import Course
-
 
 
 def makeFolder(saveDir):
@@ -34,7 +32,7 @@ def objToArray(courseList: list):
             for block in daytime[key]:
                 yIndex = blockToIndex[block]
                 arr[yIndex][xIndex] = count
-        courseOrder.append(course.number)
+        courseOrder.append(f"{course.number} / {course.section}")
         count += 1
     courseOrder.append("Activity Period")
     return arr, courseOrder  # , courseCount
@@ -73,8 +71,6 @@ def graphic(array, courseOrder, saveDir):
 
     ax.set_yticks([float(tick + 0.5) for tick in range(0, 24)])
     ax.set_yticklabels(fullBlocksR)
-
-    plt.show()
 
     plt.savefig(f"{saveDir}/{unique}.png")
 
