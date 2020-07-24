@@ -2,6 +2,9 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory, askopenfilename
+from random import randint
+from os import mkdir
+import webbrowser
 import sys
 
 sys.path.append("./models")
@@ -208,7 +211,7 @@ class Ui_MainWindow(object):
         self.course_num_list_setup(unique_all)
 
     def search(self):
-        keyword = self.course_search.toPlainText()
+        keyword = self.course_search.toPlainText().strip()
         unique_all = self.unique_course_num
         search_list = []
         if keyword == "":
@@ -307,9 +310,13 @@ class Ui_MainWindow(object):
         self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
         output = checkValid(self.submitted_list)
         if output:
+            unique = randint(1000, 9999)
+            folderPath = f"{self.directory}/{unique}"
+            mkdir(folderPath)
             for permutation in output:
                 arr, courseOrder = objToArray(permutation)
-                graphic(arr, courseOrder, self.subDir)
+                graphic(arr, courseOrder, folderPath)
+            webbrowser.open(folderPath)
         else:
             self.noValidOutput()
 
@@ -319,7 +326,6 @@ class Ui_MainWindow(object):
         self.directory = askdirectory()
         if self.directory:  # if not empty
             self.path_display.setText(self.directory)
-            self.subDir = makeFolder(self.directory)
         self.directoryBtn.clicked.connect(self.directoryBox)
 
     def noDirectory(self):
