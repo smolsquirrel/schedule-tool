@@ -1,20 +1,17 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tkinter import Tk
-from tkinter.filedialog import askdirectory
+from tkinter.filedialog import askdirectory, askopenfilename
 import sys
 
 sys.path.append("./models")
 from offeringParser import make_course_list, convList
-from course import Course
 from generateSchedule import checkValid
-from generateGraphic import objToArray, graphic, makeFolder
-from time import time
 
 
 class Ui_MainWindow(object):
     # MainWindow
-    def setupUi(self, MainWindow):
+    def setupUi(self, MainWindow, offering):
         self.directory = ""
 
         MainWindow.setObjectName("MainWindow")
@@ -161,7 +158,7 @@ class Ui_MainWindow(object):
         self.window_tabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         # ------------
-        self.course_list, self.course_dict = make_course_list("courses.csv")
+        self.course_list, self.course_dict = make_course_list(offering)
         self.course_num_list_setup(self.unique(self.course_list))
 
         self.current_item = ""  # sets default current item to nothing
@@ -305,7 +302,6 @@ class Ui_MainWindow(object):
         for i in x:
             if len(i) < 1:
                 self.noValidOutput()
-                end = time()
                 return
         self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
         output = checkValid(self.submitted_list)
@@ -314,7 +310,6 @@ class Ui_MainWindow(object):
                 arr, courseOrder = objToArray(permutation)
                 graphic(arr, courseOrder, self.subDir)
         else:
-            end = time()
             self.noValidOutput()
 
     def directoryBox(self):
@@ -341,11 +336,57 @@ class Ui_MainWindow(object):
         msgBox.exec_()
 
 
+class Ui_Form(object):
+    def setupUi(self, Form):
+        Form.setObjectName("landing")
+        Form.resize(300, 320)
+
+        self.uploadBtn = QtWidgets.QPushButton(Form)
+        self.uploadBtn.setGeometry(QtCore.QRect(100, 240, 100, 40))
+        self.uploadBtn.setObjectName("uploadBtn")
+        self.uploadBtn.clicked.connect(self.fileDialog)
+
+        self.label = QtWidgets.QLabel(Form)
+        self.label.setGeometry(QtCore.QRect(60, 20, 201, 201))
+        self.label.setText("")
+        self.label.setPixmap(QtGui.QPixmap("icon.png"))
+        self.label.setObjectName("label")
+
+        QtCore.QMetaObject.connectSlotsByName(Form)
+        Form.setWindowTitle("Course offering")
+        self.uploadBtn.setText("Upload")
+
+        self.filename = ""
+
+    def fileDialog(self):
+        self.uploadBtn.disconnect()  # prevents opening multiple dialogs
+        Tk().withdraw()
+        self.filename = askopenfilename()
+        self.uploadBtn.clicked.connect(self.fileDialog)
+        if self.filename:
+            try:
+                self.window = QtWidgets.QMainWindow()
+                self.ui = Ui_MainWindow()
+                self.ui.setupUi(self.window, self.filename)
+                self.window.show()
+                LandingPage.hide()
+            except:
+                self.alert()
+
+    def alert(self):
+        msgBox = QtWidgets.QMessageBox()
+        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setWindowTitle("Alert")
+        msgBox.setText("Invalid course offering file or failed to parse.")
+        msgBox.exec_()
+
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon("icon.png"))
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    LandingPage = QtWidgets.QMainWindow()
+    landingPage = Ui_Form()
+    landingPage.setupUi(LandingPage)
+    LandingPage.show()
+
     sys.exit(app.exec_())
