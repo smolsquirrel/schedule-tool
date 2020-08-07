@@ -42,21 +42,17 @@ class Ui_MainWindow(object):
         self.course_num_list_widget = QtWidgets.QListWidget(self.course_offering)
         self.course_num_list_widget.setGeometry(QtCore.QRect(10, 50, 251, 341))
         self.course_num_list_widget.setObjectName("course_num_list_widget")
-        self.course_num_list_widget.itemActivated.connect(self.course_selected)
+        self.course_num_list_widget.itemClicked.connect(self.course_selected)
 
         self.section_list_widget = QtWidgets.QListWidget(self.course_offering)
         self.section_list_widget.setGeometry(QtCore.QRect(280, 50, 81, 341))
         self.section_list_widget.setObjectName("section_list_widget")
-        self.section_list_widget.itemActivated.connect(self.course_display_text)
-
-        self.course_search_button = QtWidgets.QPushButton(self.course_offering)
-        self.course_search_button.setGeometry(QtCore.QRect(190, 10, 75, 23))
-        self.course_search_button.setObjectName("course_search_button")
-        self.course_search_button.clicked.connect(self.search)
+        self.section_list_widget.itemClicked.connect(self.course_display_text)
 
         self.course_search = QtWidgets.QTextEdit(self.course_offering)
-        self.course_search.setGeometry(QtCore.QRect(10, 10, 171, 31))
+        self.course_search.setGeometry(QtCore.QRect(10, 10, 251, 31))
         self.course_search.setObjectName("course_search")
+        self.course_search.textChanged.connect(self.search)
 
         self.course_display = QtWidgets.QTextBrowser(self.course_offering)
         self.course_display.setGeometry(QtCore.QRect(70, 400, 191, 31))
@@ -100,6 +96,7 @@ class Ui_MainWindow(object):
         self.overview_list1 = QtWidgets.QListWidget(self.overview_tab1)
         self.overview_list1.setGeometry(QtCore.QRect(0, 0, 381, 371))
         self.overview_list1.setObjectName("overview_list1")
+
         self.overview_tab_widget.addTab(self.overview_tab1, "")
         self.overview_tab2 = QtWidgets.QWidget()
         self.overview_tab2.setObjectName("overview_tab2")
@@ -175,8 +172,6 @@ class Ui_MainWindow(object):
         __sortingEnabled = self.course_num_list_widget.isSortingEnabled()
         self.course_num_list_widget.setSortingEnabled(False)
         self.course_num_list_widget.setSortingEnabled(__sortingEnabled)
-
-        self.course_search_button.setText("Search")
 
         self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab), "Course Selection")
 
