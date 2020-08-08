@@ -31,7 +31,7 @@ class Ui_MainWindow(object):
         self.directory = ""
 
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1111, 681)
+        MainWindow.setFixedSize(1111, 681)
 
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -364,7 +364,7 @@ class Ui_MainWindow(object):
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("landing")
-        Form.resize(300, 320)
+        Form.setFixedSize(300, 320)
 
         self.uploadBtn = QtWidgets.QPushButton(Form)
         self.uploadBtn.setGeometry(QtCore.QRect(100, 240, 100, 40))
