@@ -272,11 +272,33 @@ class Ui_MainWindow(object):
         msgBox.setText("Are you sure you want to delete this item?")
         msgBox.setIcon(QMessageBox.Warning)
         delete = msgBox.addButton("Delete", msgBox.ActionRole)
-        delete.clicked.connect(self.delete_course)
+        delete.clicked.connect(self.delete_course_pop)
         cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
+        self.cb = QtWidgets.QCheckBox("Do not show me again")
+        dontShow = msgBox.setCheckBox(self.cb)
         msgBox.exec_()
 
-    def delete_course(self):
+    def delete_course_pop(self):
+        if self.cb.checkState():
+            self.overview_list1.itemActivated.disconnect()
+            self.overview_list2.itemActivated.disconnect()
+            self.overview_list3.itemActivated.disconnect()
+            self.overview_list4.itemActivated.disconnect()
+            self.overview_list5.itemActivated.disconnect()
+            self.overview_list6.itemActivated.disconnect()
+            self.overview_list7.itemActivated.disconnect()
+            self.overview_list1.itemActivated.connect(self.delete_course)
+            self.overview_list2.itemActivated.connect(self.delete_course)
+            self.overview_list3.itemActivated.connect(self.delete_course)
+            self.overview_list4.itemActivated.connect(self.delete_course)
+            self.overview_list5.itemActivated.connect(self.delete_course)
+            self.overview_list6.itemActivated.connect(self.delete_course)
+            self.overview_list7.itemActivated.connect(self.delete_course)
+        self.current_list.takeItem(self.current_index)
+
+    def delete_course(self, item):
+        self.change_current_list()
+        self.current_index = self.current_list.row(item)
         self.current_list.takeItem(self.current_index)
 
     def get_course(self, lst):
