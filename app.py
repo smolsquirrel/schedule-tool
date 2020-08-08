@@ -13,6 +13,18 @@ from generateSchedule import checkValid
 from generateGraphic import objToArray, graphic, makeFolder
 
 
+class overviewList(QtWidgets.QListWidget):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setGeometry(QtCore.QRect(0, 0, 381, 371))
+        self.setDragDropMode(QtWidgets.QAbstractItemView.DropOnly)
+        self.setAcceptDrops(True)
+        self.selectedSection = ""
+
+    def dropEvent(self, event):
+        self.addItem(self.selectedSection)
+
+
 class Ui_MainWindow(object):
     # MainWindow
     def setupUi(self, MainWindow, offering):
@@ -47,7 +59,10 @@ class Ui_MainWindow(object):
         self.section_list_widget = QtWidgets.QListWidget(self.course_offering)
         self.section_list_widget.setGeometry(QtCore.QRect(280, 50, 81, 341))
         self.section_list_widget.setObjectName("section_list_widget")
-        self.section_list_widget.itemClicked.connect(self.course_display_text)
+        self.section_list_widget.setDragEnabled(True)
+        self.section_list_widget.setDragDropMode(QtWidgets.QAbstractItemView.DragOnly)
+        self.section_list_widget.setDefaultDropAction(QtCore.Qt.CopyAction)
+        self.section_list_widget.itemPressed.connect(self.course_display_text)
 
         self.course_search = QtWidgets.QTextEdit(self.course_offering)
         self.course_search.setGeometry(QtCore.QRect(10, 10, 251, 31))
@@ -93,46 +108,31 @@ class Ui_MainWindow(object):
 
         self.overview_tab1 = QtWidgets.QWidget()
         self.overview_tab1.setObjectName("overview_tab1")
-        self.overview_list1 = QtWidgets.QListWidget(self.overview_tab1)
-        self.overview_list1.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list1.setObjectName("overview_list1")
-
+        self.overview_list1 = overviewList(self.overview_tab1)
         self.overview_tab_widget.addTab(self.overview_tab1, "")
         self.overview_tab2 = QtWidgets.QWidget()
         self.overview_tab2.setObjectName("overview_tab2")
-        self.overview_list2 = QtWidgets.QListWidget(self.overview_tab2)
-        self.overview_list2.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list2.setObjectName("overview_list2")
+        self.overview_list2 = overviewList(self.overview_tab2)
         self.overview_tab_widget.addTab(self.overview_tab2, "")
         self.overview_tab3 = QtWidgets.QWidget()
         self.overview_tab3.setObjectName("overview_tab3")
-        self.overview_list3 = QtWidgets.QListWidget(self.overview_tab3)
-        self.overview_list3.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list3.setObjectName("overview_list3")
+        self.overview_list3 = overviewList(self.overview_tab3)
         self.overview_tab_widget.addTab(self.overview_tab3, "")
         self.overview_tab4 = QtWidgets.QWidget()
         self.overview_tab4.setObjectName("overview_tab4")
-        self.overview_list4 = QtWidgets.QListWidget(self.overview_tab4)
-        self.overview_list4.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list4.setObjectName("overview_list4")
+        self.overview_list4 = overviewList(self.overview_tab4)
         self.overview_tab_widget.addTab(self.overview_tab4, "")
         self.overview_tab5 = QtWidgets.QWidget()
         self.overview_tab5.setObjectName("overview_tab5")
-        self.overview_list5 = QtWidgets.QListWidget(self.overview_tab5)
-        self.overview_list5.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list5.setObjectName("overview_list5")
+        self.overview_list5 = overviewList(self.overview_tab5)
         self.overview_tab_widget.addTab(self.overview_tab5, "")
         self.overview_tab6 = QtWidgets.QWidget()
         self.overview_tab6.setObjectName("overview_tab6")
-        self.overview_list6 = QtWidgets.QListWidget(self.overview_tab6)
-        self.overview_list6.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list6.setObjectName("overview_list6")
+        self.overview_list6 = overviewList(self.overview_tab6)
         self.overview_tab_widget.addTab(self.overview_tab6, "")
         self.overview_tab7 = QtWidgets.QWidget()
         self.overview_tab7.setObjectName("overview_tab7")
-        self.overview_list7 = QtWidgets.QListWidget(self.overview_tab7)
-        self.overview_list7.setGeometry(QtCore.QRect(0, 0, 381, 371))
-        self.overview_list7.setObjectName("overview_list7")
+        self.overview_list7 = overviewList(self.overview_tab7)
         self.overview_tab_widget.addTab(self.overview_tab7, "")
         self.current_list = self.overview_list1  # set default list
         self.overview_list1.itemActivated.connect(self.delete_popup)
@@ -238,6 +238,7 @@ class Ui_MainWindow(object):
     def course_display_text(self, item):
         self.current_item = self.current_selected_course + " / " + item.text()
         self.course_display.setText(self.current_item)
+        self.current_list.selectedSection = self.current_item
 
     def change_current_list(self):
         current_tab = self.overview_tab_widget.currentIndex()
