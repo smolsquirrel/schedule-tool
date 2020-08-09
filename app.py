@@ -17,35 +17,48 @@ class overviewList(QtWidgets.QListWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setGeometry(QtCore.QRect(0, 0, 381, 371))
+        self.setDragEnabled(False)
         self.setDragDropMode(QtWidgets.QAbstractItemView.DropOnly)
+        self.itemPressed.connect(self.quickDelete)
         self.setAcceptDrops(True)
         self.selectedSection = ""
+        self.shifted = False
+
+    def quickDelete(self, item):
+        if self.shifted:
+            row = self.row(item)
+            self.takeItem(row)
 
     def dropEvent(self, event):
-        self.addItem(self.selectedSection)
+        if event.source() != self:
+            self.addItem(self.selectedSection)
 
 
-class Ui_MainWindow(object):
-    # MainWindow
-    def setupUi(self, MainWindow, offering):
+class MainWin(QtWidgets.QMainWindow):
+    def __init__(self, filename):
+        super().__init__()
+        self.filename = filename
+
+    def keyPressEvent(self, event):
+        if event.key() == 16777248:  # shift
+            self.current_list.shifted = True
+
+    def keyReleaseEvent(self, event):
+        if event.key() == 16777248:  # shift
+            self.current_list.shifted = False
+
+    # TODO connect to quick delete
+    def setupUi(self):
         self.directory = ""
 
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(1111, 681)
+        self.setObjectName("MainWindow")
+        self.setFixedSize(1111, 681)
 
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.window_tabs = QtWidgets.QTabWidget(self.centralwidget)
-        self.window_tabs.setEnabled(True)
-        self.window_tabs.setGeometry(QtCore.QRect(0, 0, 1111, 661))
-
-        self.window_tabs.setObjectName("window_tabs")
-        self.tab = QtWidgets.QWidget()
-        self.tab.setObjectName("tab")
-
         # COURSE OFFERING FRAME /*
-        self.course_offering = QtWidgets.QFrame(self.tab)
+        self.course_offering = QtWidgets.QFrame(self.centralwidget)
         self.course_offering.setGeometry(QtCore.QRect(140, 80, 371, 451))
         self.course_offering.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.course_offering.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -80,7 +93,7 @@ class Ui_MainWindow(object):
         # COURSE OFFERING FRAME */
 
         # OVERVIEW FRAME /*
-        self.overview = QtWidgets.QFrame(self.tab)
+        self.overview = QtWidgets.QFrame(self.centralwidget)
         self.overview.setGeometry(QtCore.QRect(620, 70, 391, 491))
         self.overview.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.overview.setFrameShadow(QtWidgets.QFrame.Raised)
@@ -144,36 +157,31 @@ class Ui_MainWindow(object):
         self.overview_list7.itemActivated.connect(self.delete_popup)
         # */
 
-        self.window_tabs.addTab(self.tab, "")
-
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(self)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1111, 21))
         self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(self)
         self.statusbar.setObjectName("statusbar")
-        MainWindow.setStatusBar(self.statusbar)
+        self.setStatusBar(self.statusbar)
 
-        self.retranslateUi(MainWindow)
-        self.window_tabs.setCurrentIndex(0)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self)
         # ------------
-        self.course_list, self.course_dict = make_course_list(offering)
+        self.course_list, self.course_dict = make_course_list(self.filename)
         self.course_num_list_setup(self.unique(self.course_list))
 
         self.current_item = ""  # sets default current item to nothing
 
         self.overview_tab_widget.currentChanged.connect(self.change_current_list)
 
-    def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle("Schedule Maker")
+    def retranslateUi(self):
+        self.setWindowTitle("Schedule Maker")
 
         __sortingEnabled = self.course_num_list_widget.isSortingEnabled()
         self.course_num_list_widget.setSortingEnabled(False)
         self.course_num_list_widget.setSortingEnabled(__sortingEnabled)
-
-        self.window_tabs.setTabText(self.window_tabs.indexOf(self.tab), "Course Selection")
 
         self.add.setText("Add")
 
@@ -390,9 +398,8 @@ class Ui_Form(object):
         self.uploadBtn.clicked.connect(self.fileDialog)
         if self.filename:
             try:
-                self.window = QtWidgets.QMainWindow()
-                self.ui = Ui_MainWindow()
-                self.ui.setupUi(self.window, self.filename)
+                self.window = MainWin(self.filename)
+                self.window.setupUi()
                 self.window.show()
                 LandingPage.hide()
             except:
