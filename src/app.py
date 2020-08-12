@@ -1,14 +1,19 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox
+import sys
+import os
+import ctypes
 from PyQt5 import QtCore, QtGui, QtWidgets
 from tkinter import Tk
 from tkinter.filedialog import askdirectory, askopenfilename
 from random import randint
-from os import mkdir
 import webbrowser
-import sys
 from offeringParser import make_course_list, convList
 from generateSchedule import checkValid
 from generateGraphic import objToArray, graphic, makeFolder
+
+myappid = "scheduleMaker"
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+
+assetsPath = os.path.dirname(os.getcwd()) + r"\assets"
 
 
 class Frame(QtWidgets.QFrame):
@@ -478,7 +483,7 @@ class MainWin(QtWidgets.QMainWindow):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setWindowTitle("Clear Confirmation")
         msgBox.setText("Are you sure you want to clear?")
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         clear = msgBox.addButton("Clear", msgBox.ActionRole)
         clear.clicked.connect(lambda: self.current_list.clear())
         cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
@@ -488,7 +493,7 @@ class MainWin(QtWidgets.QMainWindow):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setWindowTitle("Clear All Confirmation")
         msgBox.setText("Are you sure you want to clear all?")
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         clear = msgBox.addButton("Clear all", msgBox.ActionRole)
         clear.clicked.connect(self.clearAll)
         cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
@@ -500,7 +505,7 @@ class MainWin(QtWidgets.QMainWindow):
         msgBox = QtWidgets.QMessageBox()
         msgBox.setWindowTitle("Delete Confirmation")
         msgBox.setText("Are you sure you want to delete this item?")
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         delete = msgBox.addButton("Delete", msgBox.ActionRole)
         delete.clicked.connect(self.delete_course_pop)
         cancel = msgBox.addButton("Cancel", QtWidgets.QMessageBox.RejectRole)
@@ -539,12 +544,12 @@ class MainWin(QtWidgets.QMainWindow):
             if len(i) < 1:
                 self.noValidOutput()
                 return
-        self.submitted_list = convList(list(map(self.get_course, x)), self.course_dict)
+        self.submitted_list = convList(list(map(self.get_course, self.ovLst)), self.course_dict)
         output = checkValid(self.submitted_list)
         if output:
             unique = randint(1000, 9999)
             folderPath = f"{self.directory}/{unique}"
-            mkdir(folderPath)
+            os.mkdir(folderPath)
             for permutation in output:
                 arr, courseOrder = objToArray(permutation)
                 graphic(arr, courseOrder, folderPath)
@@ -562,14 +567,14 @@ class MainWin(QtWidgets.QMainWindow):
 
     def noDirectory(self):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         msgBox.setWindowTitle("Alert")
         msgBox.setText("Please choose an output directory.")
         msgBox.exec_()
 
     def noValidOutput(self):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         msgBox.setWindowTitle("Alert")
         msgBox.setText("No valid schedule combinations.")
         msgBox.exec_()
@@ -587,7 +592,7 @@ class Ui_Form(object):
         self.label = QtWidgets.QLabel(Form)
         self.label.setGeometry(QtCore.QRect(60, 20, 201, 201))
         self.label.setText("")
-        self.label.setPixmap(QtGui.QPixmap("icon.png"))
+        self.label.setPixmap(QtGui.QPixmap(assetsPath + "\icon.png"))
 
         QtCore.QMetaObject.connectSlotsByName(Form)
         Form.setWindowTitle("Course offering")
@@ -611,7 +616,7 @@ class Ui_Form(object):
 
     def alert(self):
         msgBox = QtWidgets.QMessageBox()
-        msgBox.setIcon(QMessageBox.Warning)
+        msgBox.setIcon(QtWidgets.QMessageBox.Warning)
         msgBox.setWindowTitle("Alert")
         msgBox.setText("Invalid course offering file or failed to parse.")
         msgBox.exec_()
@@ -619,7 +624,7 @@ class Ui_Form(object):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon("icon.png"))
+    app.setWindowIcon(QtGui.QIcon(assetsPath + "\icon.png"))
     LandingPage = QtWidgets.QMainWindow()
     landingPage = Ui_Form()
     landingPage.setupUi(LandingPage)
